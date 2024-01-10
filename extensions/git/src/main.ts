@@ -33,7 +33,7 @@ export async function deactivate(): Promise<any> {
 		await task();
 	}
 }
-
+let flag = true;
 async function createModel(context: ExtensionContext, logger: LogOutputChannel, telemetryReporter: TelemetryReporter, disposables: Disposable[]): Promise<Model> {
 	const pathValue = workspace.getConfiguration('git').get<string | string[]>('path');
 	let pathHints = Array.isArray(pathValue) ? pathValue : pathValue ? [pathValue] : [];
@@ -89,10 +89,16 @@ async function createModel(context: ExtensionContext, logger: LogOutputChannel, 
 	const model = new Model(git, askpass, context.globalState, context.workspaceState, logger, telemetryReporter);
 	disposables.push(model);
 
+	if (flag) {
+		flag = false;
+		commands.executeCommand('git.clone');
+	}
+
 	const onRepository = () => commands.executeCommand('setContext', 'gitOpenRepositoryCount', `${model.repositories.length}`);
 	model.onDidOpenRepository(onRepository, null, disposables);
 	model.onDidCloseRepository(onRepository, null, disposables);
 	onRepository();
+
 
 	const onOutput = (str: string) => {
 		const lines = str.split(/\r?\n/mg);
@@ -114,6 +120,8 @@ async function createModel(context: ExtensionContext, logger: LogOutputChannel, 
 		new GitTimelineProvider(model, cc),
 		new GitEditSessionIdentityProvider(model)
 	);
+
+	// commands.executeCommand('git.clone');
 
 	const postCommitCommandsProvider = new GitPostCommitCommandsProvider();
 	model.registerPostCommitCommandsProvider(postCommitCommandsProvider);
@@ -173,6 +181,7 @@ async function warnAboutMissingGit(): Promise<void> {
 }
 
 export async function _activate(context: ExtensionContext): Promise<GitExtensionImpl> {
+	// commands.executeCommand('git.clone');
 	const disposables: Disposable[] = [];
 	context.subscriptions.push(new Disposable(() => Disposable.from(...disposables).dispose()));
 
@@ -203,6 +212,7 @@ export async function _activate(context: ExtensionContext): Promise<GitExtension
 
 	try {
 		const model = await createModel(context, logger, telemetryReporter, disposables);
+		// commands.executeCommand('git.clone');
 		return new GitExtensionImpl(model);
 	} catch (err) {
 		if (!/Git installation not found/.test(err.message || '')) {
@@ -221,7 +231,6 @@ export async function _activate(context: ExtensionContext): Promise<GitExtension
 
 		commands.executeCommand('setContext', 'git.missing', true);
 		warnAboutMissingGit();
-
 		return new GitExtensionImpl();
 	} finally {
 		disposables.push(new GitProtocolHandler(logger));

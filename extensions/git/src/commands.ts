@@ -613,32 +613,33 @@ export class CommandCenter {
 		url = url.trim().replace(/^git\s+clone\s+/, '');
 
 		if (!parentPath) {
-			const config = workspace.getConfiguration('git');
-			let defaultCloneDirectory = config.get<string>('defaultCloneDirectory') || os.homedir();
-			defaultCloneDirectory = defaultCloneDirectory.replace(/^~/, os.homedir());
+			// const config = workspace.getConfiguration('git');
+			// let defaultCloneDirectory = config.get<string>('defaultCloneDirectory') || os.homedir();
+			// defaultCloneDirectory = defaultCloneDirectory.replace(/^~/, os.homedir());
 
-			const uris = await window.showOpenDialog({
-				canSelectFiles: false,
-				canSelectFolders: true,
-				canSelectMany: false,
-				defaultUri: Uri.file(defaultCloneDirectory),
-				title: l10n.t('Choose a folder to clone {0} into', url),
-				openLabel: l10n.t('Select as Repository Destination')
-			});
+			// const uris = await window.showOpenDialog({
+			// 	canSelectFiles: false,
+			// 	canSelectFolders: true,
+			// 	canSelectMany: false,
+			// 	defaultUri: Uri.file(defaultCloneDirectory),
+			// 	title: l10n.t('Choose a folder to clone {0} into', url),
+			// 	openLabel: l10n.t('Select as Repository Destination')
+			// });
 
-			if (!uris || uris.length === 0) {
-				/* __GDPR__
-					"clone" : {
-						"owner": "lszomoru",
-						"outcome" : { "classification": "SystemMetaData", "purpose": "FeatureInsight", "comment": "The outcome of the git operation" }
-					}
-				*/
-				this.telemetryReporter.sendTelemetryEvent('clone', { outcome: 'no_directory' });
-				return;
-			}
+			// if (!uris || uris.length === 0) {
+			// 	/* __GDPR__
+			// 		"clone" : {
+			// 			"owner": "lszomoru",
+			// 			"outcome" : { "classification": "SystemMetaData", "purpose": "FeatureInsight", "comment": "The outcome of the git operation" }
+			// 		}
+			// 	*/
+			// 	this.telemetryReporter.sendTelemetryEvent('clone', { outcome: 'no_directory' });
+			// 	return;
+			// }
 
-			const uri = uris[0];
-			parentPath = uri.fsPath;
+			// const uri = uris[0];
+			// parentPath = uri.fsPath;
+			parentPath = 'c:\\Users\\SiddhantPandey\\Desktop';
 		}
 
 		try {
@@ -657,7 +658,7 @@ export class CommandCenter {
 			const openAfterClone = config.get<'always' | 'alwaysNewWindow' | 'whenNoFolderOpen' | 'prompt'>('openAfterClone');
 
 			enum PostCloneAction { Open, OpenNewWindow, AddToWorkspace }
-			let action: PostCloneAction | undefined = undefined;
+			let action: PostCloneAction | undefined = PostCloneAction.Open;
 
 			if (openAfterClone === 'always') {
 				action = PostCloneAction.Open;
@@ -785,10 +786,10 @@ export class CommandCenter {
 		await this.cloneRepository(url, parentPath, options);
 	}
 
-	@command('git.cloneRecursive')
-	async cloneRecursive(url?: string, parentPath?: string): Promise<void> {
-		await this.cloneRepository(url, parentPath, { recursive: true });
-	}
+	// @command('git.cloneRecursive')
+	// async cloneRecursive(url?: string, parentPath?: string): Promise<void> {
+	// 	await this.cloneRepository(url, parentPath, { recursive: true });
+	// }
 
 	@command('git.init')
 	async init(skipFolderPrompt = false): Promise<void> {

@@ -426,5 +426,9 @@ export function registerAPICommands(extension: GitExtensionImpl): Disposable {
 		return commands.executeCommand('git-base.api.getRemoteSources', opts);
 	}));
 
+	// disposables.push(commands.registerCommand('git.clone', (opts?: PickRemoteSourceOptions) => {
+	// 	return commands.executeCommand('git.clone', opts);
+	// }));
+
 	return Disposable.from(...disposables);
 }

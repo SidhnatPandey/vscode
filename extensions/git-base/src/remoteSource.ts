@@ -8,16 +8,16 @@ import { RemoteSourceProvider, RemoteSource, PickRemoteSourceOptions, PickRemote
 import { Model } from './model';
 import { throttle, debounce } from './decorators';
 
-async function getQuickPickResult<T extends QuickPickItem>(quickpick: QuickPick<T>): Promise<T | undefined> {
-	const result = await new Promise<T | undefined>(c => {
-		quickpick.onDidAccept(() => c(quickpick.selectedItems[0]));
-		quickpick.onDidHide(() => c(undefined));
-		quickpick.show();
-	});
+// async function getQuickPickResult<T extends QuickPickItem>(quickpick: QuickPick<T>): Promise<T | undefined> {
+// 	const result = await new Promise<T | undefined>(c => {
+// 		quickpick.onDidAccept(() => c(quickpick.selectedItems[0]));
+// 		quickpick.onDidHide(() => c(undefined));
+// 		quickpick.show();
+// 	});
 
-	quickpick.hide();
-	return result;
-}
+// 	quickpick.hide();
+// 	return result;
+// }
 
 class RemoteSourceProviderQuickPick {
 
@@ -50,7 +50,7 @@ class RemoteSourceProviderQuickPick {
 			this.quickpick!.busy = true;
 			this.quickpick!.show();
 
-			const remoteSources = await this.provider.getRemoteSources(this.quickpick?.value) || [];
+			const remoteSources = await this.provider.getRemoteSources('https://github.com/SidhnatPandey/zendesk') || [];
 
 			if (remoteSources.length === 0) {
 				this.quickpick!.items = [{
@@ -76,8 +76,15 @@ class RemoteSourceProviderQuickPick {
 
 	async pick(): Promise<RemoteSource | undefined> {
 		await this.query();
-		const result = await getQuickPickResult(this.quickpick!);
-		return result?.remoteSource;
+
+
+		const result2: RemoteSource = {
+			name: 'SidhnatPandey',
+			url: 'https://github.com/SidhnatPandey/zendesk'
+		};
+		return result2;
+		// const result = await getQuickPickResult(this.quickpick!);
+		// return result?.remoteSource;
 	}
 }
 
@@ -157,17 +164,29 @@ export async function pickRemoteSource(model: Model, options: PickRemoteSourceOp
 	quickpick.onDidChangeValue(updatePicks);
 	updatePicks();
 
-	const result = await getQuickPickResult(quickpick);
+	// const result = await getQuickPickResult(quickpick);
 
-	if (result) {
-		if (result.url) {
-			return result.url;
-		} else if (result.provider) {
-			return await pickProviderSource(result.provider, options);
+	// if (result) {
+	// 	if (result.url) {
+	// 		return result.url;
+	// 	} else if (result.provider) {
+	// 		return await pickProviderSource(result.provider, options);
+	// 	}
+	// }
+
+	// return undefined;
+
+	const provider1: RemoteSourceProvider = {
+		name: 'GitHub',
+		getRemoteSources: async () => {
+			return [
+			];
 		}
-	}
+	};
 
-	return undefined;
+	return await pickProviderSource(provider1, options);
+
+
 }
 
 async function pickProviderSource(provider: RemoteSourceProvider, options: PickRemoteSourceOptions = {}): Promise<string | PickRemoteSourceResult | undefined> {
